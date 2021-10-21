@@ -20,7 +20,10 @@ API_BASE_URL_SANDBOX: str = 'api-m.sandbox.paypal.com'
 API_VERSION: str = 'v1'
 
 API_PATH_OAUTH: str = 'oauth2/token'
+"""Webadresse für PayPal Api"""
 API_PATH_TRANSACTIONS: str = 'reporting/transactions'
+API_PATH_BALANCE: str = 'reporting/balances'
+'
 
 HEADERS: MappingProxyType = MappingProxyType({  # Frozen dictionary
     'Content-Type': 'application/json',
@@ -29,7 +32,8 @@ HEADERS: MappingProxyType = MappingProxyType({  # Frozen dictionary
 
 
 class PayPal(object):  # noqa: WPS230
-    """PayPal API Client."""
+    """PayPal API Client.
+    Authentifizierung und ähnlich"""
 
     def __init__(
         self,
@@ -38,7 +42,6 @@ class PayPal(object):  # noqa: WPS230
         sandbox=False,
     ) -> None:
         """Initialize client.
-
         Arguments:
             client_id {str} -- PayPal client id
             secret {str} -- PayPal secret
@@ -60,16 +63,15 @@ class PayPal(object):  # noqa: WPS230
 
         # Perform authentication during initialising
         self._authenticate()
-#test
+
+
     def paypal_transactions(  # noqa: WPS210, WPS213
         self,
         **kwargs: dict,
     ) -> Generator[dict, None, None]:
         """Paypal transaction history.
-
         Raises:
             ValueError: When the parameter start_date is missing
-
         Yields:
             Generator[dict] -- Yields PayPal transactions
         """
@@ -84,7 +86,7 @@ class PayPal(object):  # noqa: WPS230
         # Set start date and end date
         start_date: datetime = isoparse(start_date_input)
         end_date: datetime = datetime.now(timezone.utc).replace(microsecond=0)
-
+        """Ich brauche nur ein Startdate für die BALANCE"""
         self.logger.info(
             f'Retrieving transactions from {start_date} to {end_date}',
         )
@@ -92,6 +94,8 @@ class PayPal(object):  # noqa: WPS230
         # start_date is parsed into batches, thus we remove it from the kwargs
         kwargs.pop('start_date', None)
 
+
+        """Brauche ich glaube ich auch nicht."""
         # The difference between start_date and end_date can max be 31 days
         # Split up the requests into weekly batches
         batches: rrule = rrule(
@@ -139,6 +143,7 @@ class PayPal(object):  # noqa: WPS230
             # Kwargs can be used to add aditional parameters to each requests
             http_params: dict = {**fixed_params, **kwargs}
 
+            """Ich weiß nicht wie das bei mir mit den Seiten ist. Aufjedenfall Api Path ändern"""
             # Start of pagination
             page: int = 0
             total_pages: int = 1
@@ -255,10 +260,8 @@ class PayPal(object):  # noqa: WPS230
 
     def _date_to_paypal_format(self, input_datetime: datetime) -> str:
         """Convert a datetime to the format that the PayPal api expects.
-
         Arguments:
             input_datetime {datetime} -- Input e.g. 2021-01-01 00:00:00+00:00
-
         Returns:
             str -- Converted datetime: 2021-01-01T00:00:00+0000
         """
