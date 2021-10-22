@@ -23,7 +23,6 @@ API_PATH_OAUTH: str = 'oauth2/token'
 """Webadresse für PayPal Api"""
 API_PATH_TRANSACTIONS: str = 'reporting/transactions'
 API_PATH_BALANCE: str = 'reporting/balances'
-'
 
 HEADERS: MappingProxyType = MappingProxyType({  # Frozen dictionary
     'Content-Type': 'application/json',
