@@ -234,11 +234,7 @@ class PayPal(object):  # noqa: WPS230
 
             # Default initial parameters send with each request
             fixed_params: dict = {
-                'fields': 'all',
-                'page_size': 100,
-                'page': 1,  # Is updated in further requests
                 'start_date': start_date_str,
-                'end_date': end_date_str,
             }
             # Kwargs can be used to add aditional parameters to each requests
             http_params: dict = {**fixed_params, **kwargs}
