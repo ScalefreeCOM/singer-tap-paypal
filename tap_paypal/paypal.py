@@ -204,6 +204,86 @@ class PayPal(object):  # noqa: WPS230
                 #     yield clean_paypal_transactions(transaction)
 
         self.logger.info('Finished: paypal_transactions')
+    def paypal_balance(  # noqa: WPS210, WPS213
+        self,
+        **kwargs: dict,
+    ) -> Generator[dict, None, None]:
+        """Paypal transaction history.
+        Raises:
+            ValueError: When the parameter start_date is missing
+        Yields:
+            Generator[dict] -- Yields PayPal transactions
+        """
+        self.logger.info('Stream PayPal balance')
+
+        # Validate the start_date value exists
+        start_date_input: str = str(kwargs.get('start_date', ''))
+
+        if not start_date_input:
+            raise ValueError('The parameter start_date is required.')
+
+        # Set start date and end date
+        start_date: datetime = isoparse(start_date_input)
+
+        self.logger.info(
+            f'Retrieving balance from {start_date}',
+        )
+        # Extra kwargs will be converted to parameters in the API requests
+        # start_date is parsed into batches, thus we remove it from the kwargs
+        kwargs.pop('start_date', None)
+
+
+
+            # Default initial parameters send with each request
+            fixed_params: dict = {
+                'fields': 'all',
+                'page_size': 100,
+                'page': 1,  # Is updated in further requests
+                'start_date': start_date_str,
+                'end_date': end_date_str,
+            }
+            # Kwargs can be used to add aditional parameters to each requests
+            http_params: dict = {**fixed_params, **kwargs}
+
+            """Ich weiß nicht wie das bei mir mit den Seiten ist. Aufjedenfall Api Path ändern"""
+            # Start of pagination
+            page: int = 0
+            total_pages: int = 1
+            url: str = (
+                f'{API_SCHEME}{self.base}/'
+                f'{API_VERSION}/{API_PATH_BALANCE}'
+            )
+
+            # Request more pages if there are available
+            while page < total_pages:
+                # Update current page
+                page += 1
+                http_params['page'] = page
+
+                # Request data from the API
+                client: httpx.Client = httpx.Client(http2=True)
+                response: httpx._models.Response = client.get(  # noqa: WPS437
+                    url,
+                    headers=self.headers,
+                    params=http_params,
+                )
+
+                # Raise error on 4xx and 5xxx
+                response.raise_for_status()
+
+                response_data: dict = response.json()
+
+
+                  # Yield every transaction in the response
+                balance: list = response_data.get(
+                    'balance_details',
+                    [],
+                )
+
+                # for transaction in transactions:
+                #     yield clean_paypal_transactions(transaction)
+
+        self.logger.info('Finished: paypal_balance')
 
     def _authenticate(self) -> None:  # noqa: WPS210
         """Generate a bearer access token."""
