@@ -241,39 +241,39 @@ class PayPal(object):  # noqa: WPS230
                 'start_date': start_date_str,
             }
             # Kwargs can be used to add aditional parameters to each requests
-            http_params: dict = {**fixed_params, **kwargs}
+        http_params: dict = {**fixed_params, **kwargs}
 
             """Ich weiß nicht wie das bei mir mit den Seiten ist. Aufjedenfall Api Path ändern"""
             # Start of pagination
-            page: int = 0
-            total_pages: int = 1
-            url: str = (
-                f'{API_SCHEME}{self.base}/'
-                f'{API_VERSION}/{API_PATH_BALANCE}'
+        page: int = 0
+        total_pages: int = 1
+        url: str = (
+            f'{API_SCHEME}{self.base}/'
+            f'{API_VERSION}/{API_PATH_BALANCE}'
             )
 
             # Request more pages if there are available
-            while page < total_pages:
+        while page < total_pages:
                 # Update current page
-                page += 1
-                http_params['page'] = page
+            page += 1
+            http_params['page'] = page
 
                 # Request data from the API
-                client: httpx.Client = httpx.Client(http2=True)
-                response: httpx._models.Response = client.get(  # noqa: WPS437
+            client: httpx.Client = httpx.Client(http2=True)
+            response: httpx._models.Response = client.get(  # noqa: WPS437
                     url,
                     headers=self.headers,
                     params=http_params,
                 )
 
                 # Raise error on 4xx and 5xxx
-                response.raise_for_status()
+            response.raise_for_status()
 
-                response_data: dict = response.json()
+            response_data: dict = response.json()
 
 
                   # Yield every transaction in the response
-                balance: list = response_data.get(
+            balance: list = response_data.get(
                     'balance_details',
                     [],
                 )
