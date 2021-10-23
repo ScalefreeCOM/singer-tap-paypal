@@ -202,6 +202,7 @@ class PayPal(object):  # noqa: WPS230
                 #     yield clean_paypal_transactions(transaction)
 
         self.logger.info('Finished: paypal_transactions')
+
     def paypal_balance(  # noqa: WPS210, WPS213
         self,
         **kwargs: dict,
@@ -234,6 +235,9 @@ class PayPal(object):  # noqa: WPS230
 
             # Default initial parameters send with each request
             fixed_params: dict = {
+                'fields': 'all',
+                'page_size': 100,
+                'page': 1,  # Is updated in further requests
                 'start_date': start_date_str,
             }
             # Kwargs can be used to add aditional parameters to each requests
