@@ -15,5 +15,6 @@ STREAMS: MappingProxyType = MappingProxyType({
         'replication_method': 'INCREMENTAL',
         'replication_key': 'as_of_time',
         'bookmark': 'start_date',
+        'selected': 'ture',
     }
 })
