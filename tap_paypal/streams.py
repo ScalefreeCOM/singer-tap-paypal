@@ -10,4 +10,10 @@ STREAMS: MappingProxyType = MappingProxyType({
         'replication_key': 'transaction_info.transaction_updated_date',
         'bookmark': 'start_date',
     },
+    'paypal_balance': {
+        'key_properties': ['as_of_time', 'account_id'],
+        'replication_method': 'INCREMENTAL',
+        'replication_key': 'account_id.last_refresh_time',
+        'bookmark': 'start_date',
+    }
 })
