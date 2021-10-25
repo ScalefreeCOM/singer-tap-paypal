@@ -244,7 +244,7 @@ class PayPal(object):  # noqa: WPS230
         total_batches: int = len(list(batches))
         self.logger.info(f'Total weekly batches: {total_batches}')
 
-        current_batch: int = 0
+        current_batch: int = total_batches + 1
 
         # Batches contain all start_dates, the end_date is 6 days 23:59 later
         # E.g. 2021-01-01T00:00:00+0000 <--> 2021-01-07T23:59:59+0000
