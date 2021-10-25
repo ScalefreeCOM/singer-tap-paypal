@@ -14,7 +14,7 @@ STREAMS: MappingProxyType = MappingProxyType({
         'key_properties': ['account_id', 'as_of_time'],
         'replication_method': 'INCREMENTAL',
         'replication_key': 'as_of_time',
-        'bookmark': 'start_date',
+        'bookmark': 'as_of_time',
         'selected': 'ture',
         'tap_stream_id': 'paypal_balance',
     }
