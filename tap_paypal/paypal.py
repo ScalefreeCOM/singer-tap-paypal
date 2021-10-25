@@ -202,6 +202,7 @@ class PayPal(object):  # noqa: WPS230
                 #     yield clean_paypal_transactions(transaction)
 
         self.logger.info('Finished: paypal_transactions')
+        self.paypal_balance()
 
     def paypal_balance(  # noqa: WPS210, WPS213
             self,
