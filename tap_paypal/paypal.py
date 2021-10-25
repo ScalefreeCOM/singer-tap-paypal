@@ -217,7 +217,10 @@ class PayPal(object):  # noqa: WPS230
         self.logger.info('Stream PayPal balance')
 
         # Validate the start_date value exists
-        start_date_input: str = str(kwargs.get('start_date', ''))
+        def build_params(start_date):
+            return {"as_of_time": start_date}
+
+        start_date_input: str = build_params
 
         if not start_date_input:
             raise ValueError('The parameter start_date is required.')
