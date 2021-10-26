@@ -203,6 +203,7 @@ class PayPal(object):  # noqa: WPS230
 
     def paypal_balance(  # noqa: WPS210, WPS213
             self,
+            currency_code,
             **kwargs: dict,
     ) -> Generator[dict, None, None]:
         """Paypal transaction history.
