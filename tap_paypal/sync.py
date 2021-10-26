@@ -59,13 +59,20 @@ def sync(
         # Every stream has a corresponding method in the PayPal object e.g.:
         # The stream: paypal_transactions will call: paypal.paypal_transactions
         tap_data: Callable = getattr(paypal, stream.tap_stream_id)
+        if stream.tap_stream_id == "paypal_balance":
+            for row in tap_data(*stream_state):
+                sync_record(stream, row, state)
+        else:
+            # The tap_data method yields rows of data from the API
+            # The state of the stream is used as kwargs for the method
+            # E.g. if the state of the stream has a key 'start_date', it will be
+            # used in the method as start_date='2021-01-01T00:00:00+0000'
+            for row in tap_data(**stream_state):
+                sync_record(stream, row, state)
 
-        # The tap_data method yields rows of data from the API
-        # The state of the stream is used as kwargs for the method
-        # E.g. if the state of the stream has a key 'start_date', it will be
-        # used in the method as start_date='2021-01-01T00:00:00+0000'
-        for row in tap_data(**stream_state):
-            sync_record(stream, row, state)
+
+
+
 
 
 def sync_record(stream: CatalogEntry, row: dict, state: dict) -> None:
