@@ -276,7 +276,6 @@ class PayPal(object):  # noqa: WPS230
         response.raise_for_status()
 
         response_data: dict = response.json()
-
         # Retrieve the current page details
         """page = response_data.get('page', 1)
         total_pages = response_data.get('total_pages', 1)
@@ -297,6 +296,7 @@ class PayPal(object):  # noqa: WPS230
             clean_paypal_transactions(balance)
             for balance in balances
         )
+        return balances
         # for transaction in transactions:
         #     yield clean_paypal_transactions(transaction)
 
