@@ -298,7 +298,8 @@ class PayPal(object):  # noqa: WPS230
             clean_paypal_transactions(balance)
             for balance in balances
         )
-        y = json.loads(response2)
+        y = json.dumps(response2)
+        y2 = json.loads(y)
         print(y)
 
         # for transaction in transactions:
