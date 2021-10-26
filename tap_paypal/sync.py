@@ -60,7 +60,7 @@ def sync(
         # The stream: paypal_transactions will call: paypal.paypal_transactions
         tap_data: Callable = getattr(paypal, stream.tap_stream_id)
         if stream.tap_stream_id == "paypal_balance":
-            for row in tap_data(*stream_state):
+            for row in tap_data(stream_state):
                 sync_record(stream, row, state)
         else:
             # The tap_data method yields rows of data from the API

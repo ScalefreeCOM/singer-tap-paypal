@@ -278,7 +278,7 @@ class PayPal(object):  # noqa: WPS230
         response_data: dict = response.json()
 
         # Retrieve the current page details
-        page = response_data.get('page', 1)
+        """page = response_data.get('page', 1)
         total_pages = response_data.get('total_pages', 1)
         if total_pages == 0:
                 total_pages = 1
@@ -286,14 +286,17 @@ class PayPal(object):  # noqa: WPS230
         self.logger.info(
                 f'page: {page} of '
                 f'{total_pages} '
-            )
+            )"""
 
         # Yield every transaction in the response
-        balance: list = response_data.get(
+        balances: list = response_data.get(
                 'balance_details',
                 [],
             )
-
+        yield from (
+            clean_paypal_transactions(balances)
+            for balances in balances
+        )
         # for transaction in transactions:
         #     yield clean_paypal_transactions(transaction)
 
