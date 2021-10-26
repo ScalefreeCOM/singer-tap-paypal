@@ -1794,7 +1794,6 @@
       ],
       "selected": true
     },
-
     {
       "tap_stream_id": "paypal_balance",
       "replication_key": "as_of_time",
@@ -1805,26 +1804,6 @@
       ],
       "schema": {
         "properties": {
-          "balances": {
-            "anyOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "currency": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
-                    },
-                    "primary": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
-                    },
                     "total_balance": {
                       "type": [
                         "null",
@@ -1885,17 +1864,10 @@
                             "null",
                             "string"
                           ]
+
                         }
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
+                        }
+                      },
           "account_id": {
             "type": [
               "null",
@@ -1916,12 +1888,13 @@
               "string"
             ]
           }
-        },
+      },
+      "selected": true,
         "type": [
           "null",
           "object"
         ],
-        "additionalProperties": false
+       "additionalProperties": false
       },
       "stream": "paypal_balance",
       "metadata": [
@@ -1977,8 +1950,5 @@
             "selected": true
           }
         }
-      ],
-      "selected": true
-    }
-  ]
-}
+]
+}]}

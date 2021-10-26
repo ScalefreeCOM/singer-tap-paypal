@@ -19,6 +19,7 @@ def sync(
     state: dict,
     catalog: Catalog,
     start_date: str,
+    currency_code: str,
 ) -> None:
     """Sync data from tap source.
 
