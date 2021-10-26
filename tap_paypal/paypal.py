@@ -294,8 +294,8 @@ class PayPal(object):  # noqa: WPS230
                 [],
             )
         yield from (
-            clean_paypal_transactions(balances)
-            for balances in balances
+            clean_paypal_transactions(balance)
+            for balance in balances
         )
         # for transaction in transactions:
         #     yield clean_paypal_transactions(transaction)
