@@ -296,7 +296,7 @@ class PayPal(object):  # noqa: WPS230
             clean_paypal_transactions(balance)
             for balance in balances
         )
-        return balances
+        return response.json()
         # for transaction in transactions:
         #     yield clean_paypal_transactions(transaction)
 
