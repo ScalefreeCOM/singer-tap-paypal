@@ -5,6 +5,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from types import MappingProxyType
 from typing import Generator, Optional
+import json
 
 import httpx
 import singer
@@ -276,6 +277,7 @@ class PayPal(object):  # noqa: WPS230
         response.raise_for_status()
 
         response_data: dict = response.json()
+        response2 = response.json()
         # Retrieve the current page details
         """page = response_data.get('page', 1)
         total_pages = response_data.get('total_pages', 1)
@@ -296,7 +298,9 @@ class PayPal(object):  # noqa: WPS230
             clean_paypal_transactions(balance)
             for balance in balances
         )
-        return response.json()
+        y = json.loads(response2)
+        print(y)
+
         # for transaction in transactions:
         #     yield clean_paypal_transactions(transaction)
 
