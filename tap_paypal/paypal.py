@@ -228,7 +228,7 @@ class PayPal(object):  # noqa: WPS230
         start_date: datetime = datetime.now(timezone.utc).replace(microsecond=0)
         """Ich brauche nur ein Startdate für die BALANCE"""
         self.logger.info(
-            f'Retrieving transactions from {start_date} to ',
+            f'Retrieving balance from {start_date}  ',
         )
         # Extra kwargs will be converted to parameters in the API requests
         # start_date is parsed into batches, thus we remove it from the kwargs
@@ -249,60 +249,53 @@ class PayPal(object):  # noqa: WPS230
         # Default initial parameters send with each request
         fixed_params: dict = {
             'fields': 'all',
-            'page_size': 100,
-            'page': 1,  # Is updated in further requests
             'start_date': start_date_str,
+            'currency_code': "EUR",
         }
         # Kwargs can be used to add aditional parameters to each requests
         http_params: dict = {**fixed_params, **kwargs}
 
         """Ich weiß nicht wie das bei mir mit den Seiten ist. Aufjedenfall Api Path ändern"""
         # Start of pagination
-        page: int = 0
-        total_pages: int = 1
         url: str = (
             f'{API_SCHEME}{self.base}/'
             f'{API_VERSION}/{API_PATH_BALANCE}'
         )
 
-        # Request more pages if there are available
-        while page < total_pages:
-            # Update current page
-            page += 1
-            http_params['page'] = page
 
-            # Request data from the API
-            client: httpx.Client = httpx.Client(http2=True)
-            response: httpx._models.Response = client.get(  # noqa: WPS437
+
+        #Request data from the API
+        client: httpx.Client = httpx.Client(http2=True)
+        response: httpx._models.Response = client.get(  # noqa: WPS437
                 url,
                 headers=self.headers,
                 params=http_params,
             )
 
-            # Raise error on 4xx and 5xxx
-            response.raise_for_status()
+        # Raise error on 4xx and 5xxx
+        response.raise_for_status()
 
-            response_data: dict = response.json()
+        response_data: dict = response.json()
 
-            # Retrieve the current page details
-            page = response_data.get('page', 1)
-            total_pages = response_data.get('total_pages', 1)
-            if total_pages == 0:
+        # Retrieve the current page details
+        page = response_data.get('page', 1)
+        total_pages = response_data.get('total_pages', 1)
+        if total_pages == 0:
                 total_pages = 1
 
-            self.logger.info(
+        self.logger.info(
                 f'page: {page} of '
                 f'{total_pages} '
             )
 
-            # Yield every transaction in the response
-            balance: list = response_data.get(
+        # Yield every transaction in the response
+        balance: list = response_data.get(
                 'balance_details',
                 [],
             )
 
-            # for transaction in transactions:
-            #     yield clean_paypal_transactions(transaction)
+        # for transaction in transactions:
+        #     yield clean_paypal_transactions(transaction)
 
         self.logger.info('Finished: paypal_balance')
 
