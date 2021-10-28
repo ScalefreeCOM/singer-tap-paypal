@@ -202,30 +202,30 @@ class PayPal(object):  # noqa: WPS230
 
         self.logger.info('Finished: paypal_transactions')
 
+
+
     def paypal_balance(  # noqa: WPS210, WPS213
             self,
             currency_code,
             **kwargs: dict,
     ) -> Generator[dict, None, None]:
-        """Paypal transaction history.
+        """Paypal balance.
         Raises:
             ValueError: When the parameter start_date is missing
         Yields:
-            Generator[dict] -- Yields PayPal transactions
+            Generator[dict] -- Yields PayPal balance
         """
         self.logger.info('Stream PayPal balance')
 
-        # Validate the start_date value exists
-        @staticmethod
-        def build_params(start_date):
-            return {"as_of_time": start_date}
+
 
         start_date_input: str = str(build_params)
 
+        # Validate the start_date value exists
         if not start_date_input:
             raise ValueError('The parameter start_date is required.')
 
-        # Set start date and end date
+        # Set start date
         start_date: datetime = datetime.now(timezone.utc).replace(microsecond=0)
         """Ich brauche nur ein Startdate für die BALANCE"""
         self.logger.info(
@@ -235,16 +235,7 @@ class PayPal(object):  # noqa: WPS230
         # start_date is parsed into batches, thus we remove it from the kwargs
         kwargs.pop('start_date', None)
 
-        """Brauche ich glaube ich auch nicht."""
-        # The difference between start_date and end_date can max be 31 days
-        # Split up the requests into weekly batches
-
-        # Batches contain all start_dates, the end_date is 6 days 23:59 later
-        # E.g. 2021-01-01T00:00:00+0000 <--> 2021-01-07T23:59:59+0000
-
-        # Prevent the end_date from going into the future
-
-        # Convert the datetimes to datetime formats the api expects
+          # Convert the datetimes to datetime formats the api expects
         start_date_str: str = self._date_to_paypal_format(start_date)
 
         # Default initial parameters send with each request
@@ -256,8 +247,7 @@ class PayPal(object):  # noqa: WPS230
         # Kwargs can be used to add aditional parameters to each requests
         http_params: dict = {**fixed_params, **kwargs}
 
-        """Ich weiß nicht wie das bei mir mit den Seiten ist. Aufjedenfall Api Path ändern"""
-        # Start of pagination
+        # Set API Request URL
         url: str = (
             f'{API_SCHEME}{self.base}/'
             f'{API_VERSION}/{API_PATH_BALANCE}'
@@ -277,7 +267,9 @@ class PayPal(object):  # noqa: WPS230
         response.raise_for_status()
 
         response_data: dict = response.json()
+        # zum printen in die Conslole
         response2 = response.json()
+
         # Retrieve the current page details
         """page = response_data.get('page', 1)
         total_pages = response_data.get('total_pages', 1)
@@ -298,6 +290,7 @@ class PayPal(object):  # noqa: WPS230
             clean_paypal_transactions(balance)
             for balance in balances
         )
+        # zum printen in die Conslole
         y = json.dumps(response2)
         y2 = json.loads(y)
         print(y)
