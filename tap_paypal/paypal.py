@@ -217,7 +217,10 @@ class PayPal(object):  # noqa: WPS230
         """
         self.logger.info('Stream PayPal balance')
 
-
+        #define as_of_time
+        @staticmethod
+        def build_params(start_date):
+            return {"as_of_time": start_date}
 
         start_date_input: str = str(build_params)
 

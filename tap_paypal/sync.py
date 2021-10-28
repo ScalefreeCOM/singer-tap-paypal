@@ -59,6 +59,8 @@ def sync(
         # Every stream has a corresponding method in the PayPal object e.g.:
         # The stream: paypal_transactions will call: paypal.paypal_transactions
         tap_data: Callable = getattr(paypal, stream.tap_stream_id)
+
+        # stream paypal balance with just one argument
         if stream.tap_stream_id == "paypal_balance":
             for row in tap_data(stream_state):
                 sync_record(stream, row, state)
