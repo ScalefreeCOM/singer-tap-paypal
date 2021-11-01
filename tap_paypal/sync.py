@@ -64,7 +64,7 @@ def sync(
         if stream.tap_stream_id == "paypal_balance":
         #   for row in tap_data(stream_state):
         #    sync_record(stream, row, state)
-        singer.write_records(tap_data)
+            singer.write_records(tap_data)
         else:
             # The tap_data method yields rows of data from the API
             # The state of the stream is used as kwargs for the method
