@@ -171,7 +171,8 @@ class PayPal(object):  # noqa: WPS230
 
                 yy = json.dumps(response3)
                 yy2 = json.loads(yy)
-                print("selbst geprinted" + yy2)
+                print("transaction per hand geprinted:")
+                print(yy2)
 
                 # Retrieve the current page details
                 page = response_data.get('page', 1)
