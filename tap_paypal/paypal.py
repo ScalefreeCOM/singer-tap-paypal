@@ -167,6 +167,11 @@ class PayPal(object):  # noqa: WPS230
                 response.raise_for_status()
 
                 response_data: dict = response.json()
+                response3 = response.json()
+
+                yy = json.dumps(response3)
+                yy2 = json.loads(yy)
+                print(yy2)
 
                 # Retrieve the current page details
                 page = response_data.get('page', 1)
