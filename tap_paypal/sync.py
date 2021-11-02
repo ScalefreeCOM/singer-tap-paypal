@@ -64,6 +64,7 @@ def sync(
         if stream.tap_stream_id == "paypal_balance":
             for row in tap_data(stream_state):
                 sync_record(stream, row, state)
+                print("tap_data")
                 print(tap_data)
 
 
