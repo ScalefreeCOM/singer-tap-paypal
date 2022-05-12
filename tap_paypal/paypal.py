@@ -325,8 +325,6 @@ class PayPal(object):  # noqa: WPS230
                     f'{total_pages} '
                     f'({percentage_page}%)',
                 )
-                
-                self.logger.info(f"Data: {response_data}")
 
                 # Yield every transaction in the response
                 transactions: list = response_data.get(
