@@ -1,0 +1,72 @@
+{
+    "type": [
+      "null",
+      "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "crypto_balances": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "test": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "test2": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "balances": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "test": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "test2": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "account_id": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "as_of_time": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "last_refresh_datetime": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      }
+    }
+  }
+  
