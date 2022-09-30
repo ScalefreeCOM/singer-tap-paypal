@@ -42,7 +42,9 @@ def main() -> None:
     paypal: PayPal = PayPal(
         args.config['client_id'],
         args.config['secret'],
-        args.config.get('sandbox', False),
+        args.config.get('sleep_transactions',0),
+        args.config.get('sleep_balances',0),
+        args.config.get('sandbox', False)
     )
 
     sync(paypal, args.state, catalog, args.config['start_date'])
