@@ -2,5 +2,7 @@
   "client_id": "paypal_client_id",
   "secret": "paypal_secret",
   "sandbox": false,
-  "start_date": "2021-01-01T00:00:00Z"
+  "start_date": "2021-01-01T00:00:00Z",
+  "sleep_transactions": 10, 
+  "sleep_balances": 1 
 }
