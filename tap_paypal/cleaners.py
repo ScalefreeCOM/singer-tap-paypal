@@ -147,3 +147,12 @@ def clean_paypal_transactions(row: dict) -> dict:  # noqa: WPS 210,WPS231
     row.pop('store_info', None)
     row.pop('auction_info', None)
     return row
+
+
+def clean_paypal_balances(row: dict) -> list:  # noqa: WPS 210,WPS231
+
+    #converting row into list. otherwise sync_record call in for-loop in sync.py doenst work properly for paypal_balances
+    new_row = [row]
+    
+ 
+    return new_row

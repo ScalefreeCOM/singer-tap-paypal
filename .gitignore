@@ -106,7 +106,6 @@ config.json
 rsa-key
 tags
 singer-check-tap-data
-state.json
 
 # VScode
 .vscode
@@ -116,3 +115,9 @@ state.json
 
 # Config
 test_paypal_config.json
+
+config.json
+paypal_venv/
+result.json
+catalog.json
+debug.json
