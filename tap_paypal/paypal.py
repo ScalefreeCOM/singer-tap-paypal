@@ -1,34 +1,37 @@
 """PayPal API Client."""  # noqa: WPS226
+
 # -*- coding: utf-8 -*-
 
 import logging
 from datetime import datetime, timedelta, timezone
+from time import sleep
 from types import MappingProxyType
 from typing import Generator, Optional
-
-from time import sleep
 
 import httpx
 import singer
 from dateutil.parser import isoparse
-from dateutil.rrule import WEEKLY, rrule,DAILY
+from dateutil.rrule import DAILY, WEEKLY, rrule
 
-from tap_paypal.cleaners import clean_paypal_transactions, clean_paypal_balances
+from tap_paypal.cleaners import (clean_paypal_balances,
+                                 clean_paypal_transactions)
 
 # Todo: Sadbox
-API_SCHEME: str = 'https://'
-API_BASE_URL: str = 'api-m.paypal.com'
-API_BASE_URL_SANDBOX: str = 'api-m.sandbox.paypal.com'
-API_VERSION: str = 'v1'
+API_SCHEME: str = "https://"
+API_BASE_URL: str = "api-m.paypal.com"
+API_BASE_URL_SANDBOX: str = "api-m.sandbox.paypal.com"
+API_VERSION: str = "v1"
 
-API_PATH_OAUTH: str = 'oauth2/token'
-API_PATH_TRANSACTIONS: str = 'reporting/transactions'
-API_PATH_BALANCES: str = 'reporting/balances'
+API_PATH_OAUTH: str = "oauth2/token"
+API_PATH_TRANSACTIONS: str = "reporting/transactions"
+API_PATH_BALANCES: str = "reporting/balances"
 
-HEADERS: MappingProxyType = MappingProxyType({  # Frozen dictionary
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer :accesstoken:',
-})
+HEADERS: MappingProxyType = MappingProxyType(
+    {  # Frozen dictionary
+        "Content-Type": "application/json",
+        "Authorization": "Bearer :accesstoken:",
+    }
+)
 
 
 class PayPal(object):  # noqa: WPS230
@@ -40,8 +43,7 @@ class PayPal(object):  # noqa: WPS230
         secret: str,
         sleep_transactions: float,
         sleep_balances: float,
-        sandbox=False
-
+        sandbox=False,
     ) -> None:
         """Initialize client.
 
@@ -62,10 +64,10 @@ class PayPal(object):  # noqa: WPS230
         self.token_expires: Optional[datetime] = None
 
         if sandbox:
-            self.logger.info('Running in Sandbox environment')
+            self.logger.info("Running in Sandbox environment")
         else:
-            self.logger.info('Running in Live environment')
-       
+            self.logger.info("Running in Live environment")
+
         # Perform authentication during initialising
         self._authenticate()
 
@@ -81,24 +83,24 @@ class PayPal(object):  # noqa: WPS230
         Yields:
             Generator[dict] -- Yields PayPal transactions
         """
-        self.logger.info('Stream PayPal transactions')
+        self.logger.info("Stream PayPal transactions")
 
         # Validate the start_date value exists
-        start_date_input: str = str(kwargs.get('start_date', ''))
+        start_date_input: str = str(kwargs.get("start_date", ""))
 
         if not start_date_input:
-            raise ValueError('The parameter start_date is required.')
+            raise ValueError("The parameter start_date is required.")
 
         # Set start date and end date
         start_date: datetime = isoparse(start_date_input)
         end_date: datetime = datetime.now(timezone.utc).replace(microsecond=0)
 
         self.logger.info(
-            f'Retrieving transactions from {start_date} to {end_date}',
+            f"Retrieving transactions from {start_date} to {end_date}",
         )
         # Extra kwargs will be converted to parameters in the API requests
         # start_date is parsed into batches, thus we remove it from the kwargs
-        kwargs.pop('start_date', None)
+        kwargs.pop("start_date", None)
 
         # The difference between start_date and end_date can max be 31 days
         # Split up the requests into weekly batches
@@ -109,7 +111,7 @@ class PayPal(object):  # noqa: WPS230
         )
 
         total_batches: int = len(list(batches))
-        self.logger.info(f'Total weekly batches: {total_batches}')
+        self.logger.info(f"Total weekly batches: {total_batches}")
 
         current_batch: int = 0
 
@@ -117,9 +119,7 @@ class PayPal(object):  # noqa: WPS230
         # E.g. 2021-01-01T00:00:00+0000 <--> 2021-01-07T23:59:59+0000
         for start_date_batch in batches:
             # Determine the end_date
-            end_date_batch: datetime = (
-                start_date_batch + timedelta(days=7, seconds=-1)
-            )
+            end_date_batch: datetime = start_date_batch + timedelta(days=7, seconds=-1)
 
             # Prevent the end_date from going into the future
             if end_date_batch > end_date:
@@ -132,17 +132,17 @@ class PayPal(object):  # noqa: WPS230
             current_batch += 1
 
             self.logger.info(
-                f'Parsing batch {current_batch}: {start_date_str} <--> '
-                f'{end_date_str}',
+                f"Parsing batch {current_batch}: {start_date_str} <--> "
+                f"{end_date_str}",
             )
 
             # Default initial parameters send with each request
             fixed_params: dict = {
-                'fields': 'all',
-                'page_size': 100,
-                'page': 1,  # Is updated in further requests
-                'start_date': start_date_str,
-                'end_date': end_date_str,
+                "fields": "all",
+                "page_size": 100,
+                "page": 1,  # Is updated in further requests
+                "start_date": start_date_str,
+                "end_date": end_date_str,
             }
             # Kwargs can be used to add aditional parameters to each requests
             http_params: dict = {**fixed_params, **kwargs}
@@ -151,18 +151,17 @@ class PayPal(object):  # noqa: WPS230
             page: int = 0
             total_pages: int = 1
             url: str = (
-                f'{API_SCHEME}{self.base}/'
-                f'{API_VERSION}/{API_PATH_TRANSACTIONS}'
+                f"{API_SCHEME}{self.base}/" f"{API_VERSION}/{API_PATH_TRANSACTIONS}"
             )
 
             # Request more pages if there are available
             while page < total_pages:
                 # Update current page
                 page += 1
-                http_params['page'] = page
+                http_params["page"] = page
 
                 # Request data from the API
-                client: httpx.Client = httpx.Client(http2=True)
+                client: httpx.Client = httpx.Client(http2=True, timeout=10)
                 response: httpx._models.Response = client.get(  # noqa: WPS437
                     url,
                     headers=self.headers,
@@ -175,28 +174,29 @@ class PayPal(object):  # noqa: WPS230
                 response_data: dict = response.json()
 
                 # Retrieve the current page details
-                page = response_data.get('page', 1)
-                total_pages = response_data.get('total_pages', 1)
+                page = response_data.get("page", 1)
+                total_pages = response_data.get("total_pages", 1)
                 if total_pages == 0:
                     total_pages = 1
 
                 percentage_page: float = round((page / total_pages) * 100, 2)
                 percentage_batch: float = round(
-                    (current_batch / total_batches) * 100, 2,
+                    (current_batch / total_batches) * 100,
+                    2,
                 )
 
-#                self.logger.info(
-#                    f'Batch: {current_batch} of '  # noqa: WPS221
-#                    f'{total_batches} '
-#                    f'({percentage_batch}%), '
-#                    f'page: {page} of '
-#                    f'{total_pages} '
-#                    f'({percentage_page}%)',
-#                )
-#
+                #                self.logger.info(
+                #                    f'Batch: {current_batch} of '  # noqa: WPS221
+                #                    f'{total_batches} '
+                #                    f'({percentage_batch}%), '
+                #                    f'page: {page} of '
+                #                    f'{total_pages} '
+                #                    f'({percentage_page}%)',
+                #                )
+                #
                 # Yield every transaction in the response
                 transactions: list = response_data.get(
-                    'transaction_details',
+                    "transaction_details",
                     [],
                 )
                 yield from (
@@ -205,46 +205,42 @@ class PayPal(object):  # noqa: WPS230
                 )
                 # for transaction in transactions:
                 #     yield clean_paypal_transactions(transaction)
-                
-                #added sleep because of HTML ERROR 429
+
+                # added sleep because of HTML ERROR 429
                 sleep(self.sleep_transactions)
 
-        self.logger.info('Finished: paypal_transactions')
-        
+        self.logger.info("Finished: paypal_transactions")
+
     def paypal_balances(  # noqa: WPS210, WPS213
         self,
         **kwargs: dict,
     ) -> Generator[dict, None, None]:
 
-        self.logger.info('Stream PayPal balances')
+        self.logger.info("Stream PayPal balances")
 
         # Validate the as_of_time value exists
-        as_of_time_input: str = str(kwargs.get('as_of_time', ''))
+        as_of_time_input: str = str(kwargs.get("as_of_time", ""))
 
         if not as_of_time_input:
-            raise ValueError('The parameter as_of_time is required.')
+            raise ValueError("The parameter as_of_time is required.")
 
         # Set start date and end date
         as_of_time: datetime = isoparse(as_of_time_input)
         end_date: datetime = datetime.now(timezone.utc).replace(microsecond=0)
 
         self.logger.info(
-            f'Retrieving balance of {as_of_time}',
+            f"Retrieving balance of {as_of_time}",
         )
         # Extra kwargs will be converted to parameters in the API requests
         # as_of_time is parsed into batches, thus we remove it from the kwargs
-        kwargs.pop('as_of_time', None)
+        kwargs.pop("as_of_time", None)
 
         # The difference between as_of_time and end_date can max be 31 days
         # Split up the requests into daily batches
-        batches: rrule = rrule(
-            DAILY, 
-            dtstart=as_of_time,
-            until=end_date
-        )
+        batches: rrule = rrule(DAILY, dtstart=as_of_time, until=end_date)
 
         total_batches: int = len(list(batches))
-        self.logger.info(f'Total weekly batches: {total_batches}')
+        self.logger.info(f"Total weekly batches: {total_batches}")
 
         current_batch: int = 0
 
@@ -256,26 +252,22 @@ class PayPal(object):  # noqa: WPS230
 
             # Convert the datetimes to datetime formats the api expects
             as_of_time_str: str = self._date_to_paypal_format(as_of_time_batch)
-            
+
             current_batch += 1
 
-            self.logger.info(
-                f'Parsing batch {current_batch}: {as_of_time_str} ')
+            self.logger.info(f"Parsing batch {current_batch}: {as_of_time_str} ")
 
             # Default initial parameters send with each request
             fixed_params: dict = {
-                'as_of_time': as_of_time_str,
+                "as_of_time": as_of_time_str,
             }
             # Kwargs can be used to add aditional parameters to each requests
             http_params: dict = {**fixed_params}
 
-            url: str = (
-                f'{API_SCHEME}{self.base}/'
-                f'{API_VERSION}/{API_PATH_BALANCES}'
-            )
- 
+            url: str = f"{API_SCHEME}{self.base}/" f"{API_VERSION}/{API_PATH_BALANCES}"
+
             # Request data from the API
-            client: httpx.Client = httpx.Client(http2=True)
+            client: httpx.Client = httpx.Client(http2=True, timeout=10)
             response: httpx._models.Response = client.get(  # noqa: WPS437
                 url,
                 headers=self.headers,
@@ -286,30 +278,26 @@ class PayPal(object):  # noqa: WPS230
             response.raise_for_status()
 
             balances: dict = response.json()
-            #self.logger.info(f"list data: {balances}")
+            # self.logger.info(f"list data: {balances}")
 
-            yield from (
-                clean_paypal_balances(balances)
-            )
+            yield from (clean_paypal_balances(balances))
             # for transaction in transactions:
             #     yield clean_paypal_transactions(transaction)
-            
-            #added sleep because of HTML ERROR 429
+
+            # added sleep because of HTML ERROR 429
             sleep(self.sleep_balances)
 
-        self.logger.info('Finished: paypal_balance')
+        self.logger.info("Finished: paypal_balance")
 
     def _authenticate(self) -> None:  # noqa: WPS210
         """Generate a bearer access token."""
-        url: str = (
-            f'{API_SCHEME}{self.base}/'
-            f'{API_VERSION}/{API_PATH_OAUTH}'
-        )
+        url: str = f"{API_SCHEME}{self.base}/" f"{API_VERSION}/{API_PATH_OAUTH}"
+        print(url)
         headers: dict = {
-            'Accept': 'application/json',
-            'Accept-Language': 'en_US',
+            "Accept": "application/json",
+            "Accept-Language": "en_US",
         }
-        post_data: dict = {'grant_type': 'client_credentials'}
+        post_data: dict = {"grant_type": "client_credentials"}
 
         now: datetime = datetime.utcnow()
 
@@ -327,27 +315,26 @@ class PayPal(object):  # noqa: WPS230
         response_data: dict = response.json()
 
         # Save the token
-        self.token = response_data.get('access_token')
+        self.token = response_data.get("access_token")
 
         # Set experation date for token
-        expires_in: int = response_data.get('expires_in', 0)
+        expires_in: int = response_data.get("expires_in", 0)
         self.token_expires = now + timedelta(expires_in)
 
         # Set up headers to use in API requests
         self._create_headers()
 
-        appid: Optional[str] = response_data.get('app_id')
+        appid: Optional[str] = response_data.get("app_id")
 
         self.logger.info(
-            'Authentication succesfull '
-            f'(appid: {appid})',
+            "Authentication succesfull " f"(appid: {appid})",
         )
 
     def _create_headers(self) -> None:
         """Create authenticationn headers for requests."""
         headers: dict = dict(HEADERS)
-        headers['Authorization'] = headers['Authorization'].replace(
-            ':accesstoken:',
+        headers["Authorization"] = headers["Authorization"].replace(
+            ":accesstoken:",
             self.token,
         )
         self.headers = headers
@@ -361,4 +348,4 @@ class PayPal(object):  # noqa: WPS230
         Returns:
             str -- Converted datetime: 2021-01-01T00:00:00+0000
         """
-        return ''.join(input_datetime.isoformat().rsplit(':', 1))
+        return "".join(input_datetime.isoformat().rsplit(":", 1))
