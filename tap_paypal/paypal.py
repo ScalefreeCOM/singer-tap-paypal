@@ -292,7 +292,6 @@ class PayPal(object):  # noqa: WPS230
     def _authenticate(self) -> None:  # noqa: WPS210
         """Generate a bearer access token."""
         url: str = f"{API_SCHEME}{self.base}/" f"{API_VERSION}/{API_PATH_OAUTH}"
-        print(url)
         headers: dict = {
             "Accept": "application/json",
             "Accept-Language": "en_US",
